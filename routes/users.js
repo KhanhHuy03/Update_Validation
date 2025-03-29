@@ -49,7 +49,7 @@ router.put(
     body('email').optional().isEmail().withMessage('Invalid email format'),
     body('role').optional().isString().withMessage('Role must be a string'),
   ],
-  validate, // Hàm kiểm tra lỗi
+  validate, 
   async function (req, res, next) {
     try {
       let body = req.body;

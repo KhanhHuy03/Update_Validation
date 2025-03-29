@@ -5,11 +5,11 @@ let { CreateSuccessResponse, CreateErrorResponse } = require('../utils/responseH
 let { check_authentication } = require('../utils/check_auth');
 const { SignUpValidator, UpdateAuthValidator, validate } = require('../utils/validator');
 
-/* POST login. */
+
 router.post(
     '/login',
-    SignUpValidator, // Sử dụng validator cho đăng nhập
-    validate, // Hàm kiểm tra lỗi
+    SignUpValidator, 
+    validate, 
     async function (req, res, next) {
         try {
             let { username, password } = req.body;
@@ -21,12 +21,11 @@ router.post(
     }
 );
 
-/* PUT update auth details. */
 router.put(
     '/:id',
     check_authentication,
-    UpdateAuthValidator, // Sử dụng validator cho cập nhật thông tin auth
-    validate, // Hàm kiểm tra lỗi
+    UpdateAuthValidator, 
+    validate, 
     async function (req, res, next) {
         try {
             let body = req.body;
