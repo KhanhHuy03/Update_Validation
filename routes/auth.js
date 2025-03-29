@@ -3,7 +3,7 @@ var router = express.Router();
 let authController = require('../controllers/auth');
 let { CreateSuccessResponse, CreateErrorResponse } = require('../utils/responseHandler');
 let { check_authentication } = require('../utils/check_auth');
-const { SignUpValidator, UpdateAuthValidator, validate } = require('../utils/validator');
+let { SignUpValidator, UpdateAuthValidator, validate } = require('../utils/validator');
 
 
 router.post(
