@@ -1,14 +1,42 @@
 var express = require('express');
 var router = express.Router();
-var userController = require('../controllers/users')
-let { CreateSuccessResponse, CreateErrorResponse } = require('../utils/responseHandler')
-let jwt = require('jsonwebtoken')
-let constants = require('../utils/constants')
-let { check_authentication } = require('../utils/check_auth')
-let crypto = require('crypto')
-let mailer = require('../utils/mailer')
-let {SignUpValidator,LoginValidator,validate} = require('../utils/validator')
+let authController = require('../controllers/auth');
+let { CreateSuccessResponse, CreateErrorResponse } = require('../utils/responseHandler');
+let { check_authentication } = require('../utils/check_auth');
+const { SignUpValidator, UpdateAuthValidator, validate } = require('../utils/validator');
 
+/* POST login. */
+router.post(
+    '/login',
+    SignUpValidator, // Sử dụng validator cho đăng nhập
+    validate, // Hàm kiểm tra lỗi
+    async function (req, res, next) {
+        try {
+            let { username, password } = req.body;
+            let token = await authController.Login(username, password);
+            CreateSuccessResponse(res, 200, { token });
+        } catch (error) {
+            CreateErrorResponse(res, 401, error.message);
+        }
+    }
+);
+
+/* PUT update auth details. */
+router.put(
+    '/:id',
+    check_authentication,
+    UpdateAuthValidator, // Sử dụng validator cho cập nhật thông tin auth
+    validate, // Hàm kiểm tra lỗi
+    async function (req, res, next) {
+        try {
+            let body = req.body;
+            let updatedAuth = await authController.UpdateAuth(req.params.id, body);
+            CreateSuccessResponse(res, 200, updatedAuth);
+        } catch (error) {
+            CreateErrorResponse(res, 400, error.message);
+        }
+    }
+);
 
 router.post('/signup',SignUpValidator,validate, async function (req, res, next) {
         try {
@@ -20,23 +48,11 @@ router.post('/signup',SignUpValidator,validate, async function (req, res, next) 
             next(error)
         }
     });
-router.post('/login',LoginValidator,validate, async function (req, res, next) {
-    try {
-        let user_id = await userController.CheckLogin(
-            req.body.username, req.body.password
-        )
-        let token = jwt.sign({
-            id: user_id,
-            exp: (new Date(Date.now() + 60 * 60 * 1000)).getTime()
-        }, constants.SECRET_KEY)
-        CreateSuccessResponse(res, 200, token)
-    } catch (error) {
-        next(error)
-    }
-});
+
 router.get('/me', check_authentication, function (req, res, next) {
     CreateSuccessResponse(res, 200, req.user)
 })
+
 router.post('/change_password', check_authentication,
     function (req, res, next) {
         try {
